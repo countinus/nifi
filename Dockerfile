@@ -17,12 +17,12 @@
 #
 
 FROM openjdk:8-jre
-LABEL maintainer="Apache NiFi <dev@nifi.apache.org>"
+LABEL maintainer=["Countinus Lab <countinus@gmail.com>"]
 LABEL site="https://nifi.apache.org"
 
 ARG UID=1000
 ARG GID=1000
-ARG NIFI_VERSION=1.8.0
+ARG NIFI_VERSION=1.7.1
 ARG BASE_URL=https://archive.apache.org/dist
 ARG MIRROR_BASE_URL=${MIRROR_BASE_URL:-${BASE_URL}}
 ARG NIFI_BINARY_PATH=${NIFI_BINARY_PATH:-/nifi/${NIFI_VERSION}/nifi-${NIFI_VERSION}-bin.zip}
@@ -36,6 +36,7 @@ ENV NIFI_PID_DIR=${NIFI_HOME}/run
 ENV NIFI_LOG_DIR=${NIFI_HOME}/logs
 
 ADD sh/ ${NIFI_BASE_DIR}/scripts/
+ENV PATH="${NIFI_BASE_DIR}/scripts:${PATH}"
 
 # Setup NiFi user and create necessary directories
 RUN groupadd -g ${GID} nifi || groupmod -n nifi `getent group ${GID} | cut -d: -f1` \
@@ -86,6 +87,9 @@ EXPOSE 8080 8443 10000
 
 WORKDIR ${NIFI_HOME}
 
+HEALTHCHECK --interval=1m30s --timeout=20s --start-period=2m \
+  CMD healthcheck.sh
+
 # Apply configuration and start NiFi
 #
 # We need to use the exec form to avoid running our command in a subshell and omitting signals,
@@ -95,4 +99,4 @@ WORKDIR ${NIFI_HOME}
 # Also we need to use relative path, because the exec form does not invoke a command shell,
 # thus normal shell processing does not happen:
 # https://docs.docker.com/engine/reference/builder/#exec-form-entrypoint-example
-ENTRYPOINT ["../scripts/start.sh"]
+ENTRYPOINT ["start.sh"]
