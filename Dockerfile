@@ -17,7 +17,7 @@
 #
 
 FROM openjdk:8-jre
-LABEL maintainer=["Countinus Lab <countinus@gmail.com>"]
+LABEL maintainer=["Countinus Lab <countinus.dev@gmail.com>"]
 LABEL site="https://nifi.apache.org"
 
 ARG UID=1000
